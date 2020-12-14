@@ -9,23 +9,27 @@ Exports csv with three columns: time, author, and comment
 Runs a few functions for basic analysis
 
 Author: Lindsey Viann Parkinson
-Last Updated: December 2020
+Last Updated: December 14, 2020
 
-""""
+"""
 # Import modules and packages
 import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 import networkx as nx
+import fire
 
 
-def convert_to_dataframe(file):
+def convert_to_dataframe(file, private = False):
     """
     Use regular expressions to convert the Zoom.txt file into 
     a dataframe with comment time, the author, and the comment
     
-    File: path to text file
+    file: path to text file
+    private: Optional. Default setting removes private messages 
+        if private = True private message are kept
     """
     time = []
     author =[]
@@ -48,8 +52,14 @@ def convert_to_dataframe(file):
     df = pd.DataFrame(zip(time, author, comment), 
                columns =['time','author', 'comment']) 
     
+    df['author'] = df['author'].str[:-2]
+    
+    if private == False:
+        df = df[~df['author'].str.contains("Privately")].reset_index(drop=True)
+
     return df.head()
 
+'''
 def clean_dataframe(df, private = False):
     """
     df: dataframe of Zoom chat
@@ -62,6 +72,7 @@ def clean_dataframe(df, private = False):
         df = df[~df['author'].str.contains("Privately")].reset_index(drop=True)
 
     return df.head()    
+'''
 
 def convert_to_csv(df, csv_name, index = False):
     """
@@ -107,7 +118,7 @@ def comments_over_time(df, tinterval = 10, yticks = 2):
     times = [t.hour + t.minute/60. for t in df['time']]
 
     # set the time interval required (in minutes)
-    tinterval = tinterval.
+    tinterval = tinterval
 
     # find the lower and upper bin edges (on an integer number of 10 mins past the hour)
     lowbin = np.min(times) - np.fmod(np.min(times)-np.floor(np.min(times)), tinterval/60.)
@@ -144,7 +155,6 @@ def comment_network(df):
 
     G = nx.from_pandas_edgelist(dfchatters, 'author', 'responder')
     
-    from matplotlib.pyplot import figure
     
     return
     figure(figsize=(23, 15))
@@ -152,6 +162,7 @@ def comment_network(df):
 
 
 if __name__ == "__main__":
+    fire.Fire()
     print("""
     Script to convert raw text file from Zoom chat into dataframe
     Exports csv with three columns: time, author, and comment
@@ -159,4 +170,4 @@ if __name__ == "__main__":
     
     Params:
     - file:Zoom text file
-    - csv_name: what to name exported csv file
+    - csv_name: what to name exported csv file """
