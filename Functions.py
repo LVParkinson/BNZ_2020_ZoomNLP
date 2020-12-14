@@ -13,24 +13,27 @@ Last Updated: December 14, 2020
 
 """
 # Import modules and packages
+import fire
 import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import networkx as nx
-import fire
 
 
-def convert_to_dataframe(file, private = False):
+
+def convert_to_dataframe(filepath, private = False):
     """
     Use regular expressions to convert the Zoom.txt file into 
     a dataframe with comment time, the author, and the comment
     
-    file: path to text file
+    filepath: path to text file
     private: Optional. Default setting removes private messages 
         if private = True private message are kept
     """
+    file = open('filepath', mode='r', encoding="utf8")
+
     time = []
     author =[]
     comment =[]
@@ -56,8 +59,15 @@ def convert_to_dataframe(file, private = False):
     
     if private == False:
         df = df[~df['author'].str.contains("Privately")].reset_index(drop=True)
-
+    else: exit()
+    
     return df.head()
+
+
+if __name__ == '__main__':
+    fire.Fire({
+      'convert_to_dataframe': convert_to_dataframe
+    })
 
 '''
 def clean_dataframe(df, private = False):
@@ -163,6 +173,7 @@ def comment_network(df):
 
 if __name__ == "__main__":
     fire.Fire()
+    '''
     print("""
     Script to convert raw text file from Zoom chat into dataframe
     Exports csv with three columns: time, author, and comment
@@ -170,4 +181,5 @@ if __name__ == "__main__":
     
     Params:
     - file:Zoom text file
-    - csv_name: what to name exported csv file """
+    - csv_name: what to name exported csv file """  
+    '''
