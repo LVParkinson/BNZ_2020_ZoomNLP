@@ -18,6 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import networkx as nx
+import fpdf
 
 
 
@@ -245,6 +246,7 @@ def csv_pipeline(pathtocsv):
     print("Pipeline complete. Check directory")
 
 def start_to_finish(filepath, csv_name):    
+    
     def convert_to_csv(filepath, csv_name):
         file = open(filepath, mode='r',encoding="utf8")
 
@@ -292,17 +294,51 @@ def start_to_finish(filepath, csv_name):
             links=[]
             for comment in df['comment']:
                 links.extend(re.findall(r'(https?://[^\s]+)', comment))
+            
+            print("  ")
+            print("~~~~check working directory for Zoom_urls.txt~~~~")
             print("  ")
             for link in links: 
                 print(link)
+            #pdf = fpdf.FPDF(format = 'letter')
+            #pdf.add_page()
+            #pdf.set_font("Arial", size=12)
+
+            #for link in str(links):
+            #pdf.write(str(links))
+            #pdf.output("linktest.pdf")
+            
+            urlFile=open('Zoom_urls.txt','w')
+            links=map(lambda x:x+'\n', links)
+            urlFile.writelines(links)
+            urlFile.close()
+            
+            
         find_urls(df)
 
         def comments_by_author(df):
             """
             Count the number of comments made by each author
-            """
+            """     
+            #group and count comments by author
+            authorcomments = df.groupby(df['author'])['author'].count().sort_values(ascending=False)
+            
+            
+            #turn into list
+            #authorcount = []
+            #for author in authorcomments:
+            #    authorcount.extend(author)
+                
+            authorFile=open('Author_count.txt','w')
+            #authorcount=map(lambda x:x+'\n', authorcount)
+            authorFile.writelines(str(authorcomments))
+            authorFile.close()
+            
             print("  ")
-            print( df.groupby(df['author'])['author'].count().sort_values(ascending=False))
+            print("~~~~check working directory for Author_count.txt~~~~")
+            print("  ")
+            print(authorcomments)
+            
         comments_by_author(df)
 
         def comments_over_time(df):
@@ -345,8 +381,9 @@ def start_to_finish(filepath, csv_name):
             ax.set_ylabel("Number of messages")
             ax.set_title("number of messages in 10-min intervals")
             plt.savefig("Zoom_histogram.png")
-
+            print("  ")
             print("~~~~check working directory for Zoom_histogram.png~~~~")
+            print("  ")
         comments_over_time(df)
 
         def comment_network(df):
@@ -367,12 +404,45 @@ def start_to_finish(filepath, csv_name):
             nx.draw_shell(G, with_labels=True,font_weight='bold')
 
             plt.savefig("Zoom_network.png", bbox_inches="tight")
-
+            print("  ")
             print("~~~~check working directory for Zoom_network.png~~~~")
+            print("  ")
         comment_network(df)
+    
+    #Create pdf
+    pdf = fpdf.FPDF(format = 'letter')
+    #Page 1
+    pdf.add_page()
+    pdf.set_font("Arial", size = 15)
+    pdf.cell(200, 10, txt = "Zoom Chat - Basic Analytics",  
+         ln = 1, align = 'C') 
+    a = open("Author_count.txt", "r", encoding ="utf8")
+    for line in a: 
+        if line.strip():
+            pdf.cell(200, 10, txt = line)
+    #Page 2
+    pdf.add_page()
+    u = open("Zoom_urls.txt", "r", encoding ="utf8")
+    for line in u: 
+        if line.strip():
+            pdf.cell(200, 10, txt = line)
+    #Page 3
+    pdf.add_page()
+    pdf.cell(200, 10, txt = "Zoom Chat Histogram",  
+         ln = 1, align = 'C')
+    pdf.image("Zoom_histogram.png", w=190, h=120)
+    #Page 4
+    pdf.add_page()
+    pdf.cell(200, 10, txt = "Zoom Chat Network",  
+         ln = 1, align = 'C')
+    pdf.image("Zoom_network.png", w=200, h=200)
+    
+    pdf.output("test.pdf")
+    
     convert_to_csv(filepath, csv_name)
+    print("  ")
     print("~~~~Pipeline complete. Check working directory~~~~")        
-
+    print("  ")
     
 if __name__ == '__main__':
     fire.Fire({
