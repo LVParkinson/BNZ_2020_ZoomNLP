@@ -1,0 +1,8 @@
+fire
+os
+re
+pandas
+numpy
+matplotlib.pyplot 
+networkx
+fpdf
