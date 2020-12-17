@@ -8,7 +8,7 @@ Make csv:
 
 Analysis:
     start_to_finish() - Runs all the analytical functions and exports pdf
-    individual_function() - Runs one  analytical function
+    one_analytical() - Runs one  analytical function
         find_urls() - Extract urls from comments
         comments_by_author() - Count the number of comments made by each author
         comments_over_time() - Returns histogram of comments over meeting time  
@@ -34,6 +34,7 @@ from fpdf import FPDF, HTMLMixin
 def convert_to_csv(filepath, csv_name):
     """
     Exports csv with three columns: time, author, and comment
+    Private messages are removed before exporting
     
     filepath: path to the .txt file downloaded from the Zoom recording
     csv_name: name for the exported csv file (include .csv !)
@@ -123,9 +124,9 @@ def comments_over_time(df):
     newlabels = []
     for edge in bins:
         h, m = divmod(edge%12, 1)  # get hours and minutes (in 12 hour clock)
-        newlabels.append('{0:01d}:{1:02d}'.format(int(h), int(m*60)))  # create the new label
-
-    ax.set_xticklabels(newlabels, rotation = 60)  # set the new labels
+        newlabels.append('{0:01d}:{1:02d}'.format(int(h), int(m*60)))
+    
+    ax.set_xticklabels(newlabels, rotation = 60)
     start, end = ax.get_ylim()
     ax.yaxis.set_ticks(np.arange(start, end, 2))
     ax.set_ylabel("Number of messages")
@@ -157,7 +158,7 @@ def comment_network(df):
     print("\n~~~~check working directory for Zoom_network.png~~~~\n")
 
     
-def individual_function(filepath, csv_name, function_name):
+def one_analytical(filepath, csv_name, function_name):
     """
     Call only one function of Zoom Chat Analytics
     
@@ -169,11 +170,18 @@ def individual_function(filepath, csv_name, function_name):
     df = convert_to_csv(filepath, csv_name)
     return eval(function_name + "(df)")
     
-def start_to_finish(filepath, csv_name):    
+
+def start_to_finish(filepath, csv_name, pdf_name):    
+    """
+    Runs all the analytical functions and exports pdf
+    
+    filepath: path to .txt file 
+    csv_name: name of exported csv (include .csv !)
+    pdf_name: ame of exported pdf (include .pdf !)
+    """
     df = convert_to_csv(filepath, csv_name)
 
-    #Create and Format pdf
-    
+    #Create and Format pdf  
     class MyFPDF(FPDF, HTMLMixin):
         pass
     
@@ -217,11 +225,12 @@ def start_to_finish(filepath, csv_name):
     
         #footer
     pdf.set_font('Arial', size = 10)
+    pdf.set_y(250)
     pdf.multi_cell(180, 25, txt = "Document created with https://github.com/LVParkinson/BNZ_2020_ZoomNLP ", align = 'C')
+    
+    pdf.output(pdf_name)
 
-    pdf.output("test.pdf")
-
-    print("\n~~~~start-to-finish complete. Check working directory~~~~\n")        
+    print("\n~~~~start-to-finish() complete. Check working directory~~~~\n")        
 
     
 if __name__ == '__main__':
@@ -231,6 +240,6 @@ if __name__ == '__main__':
       'comments_by_author': comments_by_author,
       'comments_over_time': comments_over_time,
       'comment_network': comment_network,
-      'individual_function': individual_function,
+      'one_analytical': one_analytical,
       'start_to_finish': start_to_finish
   })
