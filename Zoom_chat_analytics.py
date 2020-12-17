@@ -1,12 +1,21 @@
 #!/usr/bin/python3
 
 """
-Script to convert raw text file from Zoom chat into usable dataframe
-Exports csv with three columns: time, author, and comment
-Runs a few functions for basic analysis
+Script to convert raw text file from Zoom chat into usable dataframe and run basic analytics. 
+
+Make csv:
+    convert_to_csv() - Exports csv with three columns: time, author, and comment
+
+Analysis:
+    start_to_finish() - Runs all the analytical functions and exports pdf
+    one_analytical() - Runs one  analytical function
+        find_urls() - Extract urls from comments
+        comments_by_author() - Count the number of comments made by each author
+        comments_over_time() - Returns histogram of comments over meeting time  
+        comment_network() - Create a network graph of who responds to comments
 
 Author: Lindsey Viann Parkinson
-Last Updated: December 16, 2020
+Last Updated: December 17, 2020
 
 """
 # Import modules and packages
@@ -18,13 +27,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import networkx as nx
-import fpdf
-
-
+from fpdf import FPDF, HTMLMixin
 
 
 
 def convert_to_csv(filepath, csv_name):
+    """
+    Exports csv with three columns: time, author, and comment
+    Private messages are removed before exporting
+    
+    filepath: path to the .txt file downloaded from the Zoom recording
+    csv_name: name for the exported csv file (include .csv !)
+    """
     file = open(filepath, mode='r',encoding="utf8")
 
     time = []
@@ -32,7 +46,7 @@ def convert_to_csv(filepath, csv_name):
     comment =[]
 
     regex_time = r'\d{2}:\d{2}:\d{2}'
-    regex_author = r'\bFrom \s(.*?:)' #this could be improved to avoid the space and colon at the end
+    regex_author = r'\bFrom \s(.*?:)'
     regex_comment = r'(?:\: )(.*$)'
 
     for line in file:
@@ -49,25 +63,29 @@ def convert_to_csv(filepath, csv_name):
     
     df = pd.concat([s1,s2,s3], axis=1)
     
+    #remove "  :" from each author
     df['author'] = df['author'].str[:-2]
+    
+    # remove private messages from dataframe
     df = df[~df['author'].str.contains("Privately")].reset_index(drop=True)
     
     df.to_csv(csv_name, index = False) 
     
+    print("\n~~~~check source folder for Zoom chat csv~~~~\n")
     print(df.head())
-    print("\n~~~~check source folder for csv~~~~\n")
     return df
     
     
 def find_urls(df):
     """
     Extract urls from comments. 
-    Only works with full urls containing "http"
+    Only works with full urls containing "http(s)://"
     """
+    #Bug: if 2+ links in one comment, the links are printed together. BUT both work.
     
     links=[]
     for comment in df['comment']:
-        links.extend(re.findall(r'(https?://[^\s]+)', comment))
+        links.extend(re.findall(r'(https?://[^\s]+)', comment)) 
     return links
     
 
@@ -82,8 +100,6 @@ def comments_by_author(df):
 def comments_over_time(df):
     """
     Count the number of comments over time. Return histogram.
-    tinterval: Optional. the time interval, in minutes, to count comments
-    yticks: Optional. Y-axis tick mark interval
     """  
     #convert string to time
     df['time'] = pd.to_datetime(df['time'],format= '%H:%M:%S' ).dt.time
@@ -108,9 +124,9 @@ def comments_over_time(df):
     newlabels = []
     for edge in bins:
         h, m = divmod(edge%12, 1)  # get hours and minutes (in 12 hour clock)
-        newlabels.append('{0:01d}:{1:02d}'.format(int(h), int(m*60)))  # create the new label
-
-    ax.set_xticklabels(newlabels, rotation = 60)  # set the new labels
+        newlabels.append('{0:01d}:{1:02d}'.format(int(h), int(m*60)))
+    
+    ax.set_xticklabels(newlabels, rotation = 60)
     start, end = ax.get_ylim()
     ax.yaxis.set_ticks(np.arange(start, end, 2))
     ax.set_ylabel("Number of messages")
@@ -142,22 +158,34 @@ def comment_network(df):
     print("\n~~~~check working directory for Zoom_network.png~~~~\n")
 
     
-def individual_function(filepath, csv_name, function_name):
+def one_analytical(filepath, csv_name, function_name):
     """
     Call only one function of Zoom Chat Analytics
+    
     filepath: path to .txt file 
     csv_name: what the output csv will be called (include .csv !)
     function_name: which individual function you'd like to run
+    
     """
     df = convert_to_csv(filepath, csv_name)
-    function = function_name + '(df)'
-    function
+    return eval(function_name + "(df)")
     
-def start_to_finish(filepath, csv_name):    
+
+def start_to_finish(filepath, csv_name, pdf_name):    
+    """
+    Runs all the analytical functions and exports pdf
+    
+    filepath: path to .txt file 
+    csv_name: name of exported csv (include .csv !)
+    pdf_name: ame of exported pdf (include .pdf !)
+    """
     df = convert_to_csv(filepath, csv_name)
 
-    #Create and Format pdf
-    pdf = fpdf.FPDF(format = 'letter')
+    #Create and Format pdf  
+    class MyFPDF(FPDF, HTMLMixin):
+        pass
+    
+    pdf = MyFPDF()
     pdf.add_page()
         #Header
     pdf.set_font('Arial', 'B', size = 25)
@@ -181,28 +209,28 @@ def start_to_finish(filepath, csv_name):
     url_list = find_urls(df)
     pdf.set_font('Arial', size = 12)
     for url in url_list: 
-        pdf.write(5, txt = url + "\n")
+        pdf.write_html(text = f"<a href={url}>{url}</a></br>")
     
     #Page 3 - Histogram
     pdf.add_page(orientation = 'L')
-    pdf.set_font('Arial', 'B', size = 15)
-    
     comments_over_time(df)    
-    pdf.image("Zoom_histogram.png", w=250, h=180)
+    pdf.image("Zoom_histogram.png", w=250, h=160)
     
     #Page 4 - Network
     pdf.add_page()
+    pdf.set_font('Arial', 'B', size = 15)
     pdf.cell(200, 10, txt = "Zoom Chat Network", ln = 1, align = 'C')
     comment_network(df)
     pdf.image("Zoom_network.png", w=200, h=200)
     
         #footer
     pdf.set_font('Arial', size = 10)
+    pdf.set_y(250)
     pdf.multi_cell(180, 25, txt = "Document created with https://github.com/LVParkinson/BNZ_2020_ZoomNLP ", align = 'C')
+    
+    pdf.output(pdf_name)
 
-    pdf.output("test.pdf")
-
-    print("\n~~~~start-to-finish complete. Check working directory~~~~\n")        
+    print("\n~~~~start-to-finish() complete. Check working directory~~~~\n")        
 
     
 if __name__ == '__main__':
@@ -212,6 +240,6 @@ if __name__ == '__main__':
       'comments_by_author': comments_by_author,
       'comments_over_time': comments_over_time,
       'comment_network': comment_network,
-      'individual_function': individual_function,
+      'one_analytical': one_analytical,
       'start_to_finish': start_to_finish
   })
