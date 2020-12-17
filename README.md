@@ -10,7 +10,7 @@ As of December 17, 2020 Zoom_chat_analytics.py can:
   - A network graph of commenters and responders
 - Each of the analytical functions within the pdf report can also be run individually  
 
-## Documents
+## Documents  
 - requirements.txt - installs all required dependencies
 - Zoom_chat_analytics.py - see above
 
@@ -19,9 +19,39 @@ As of December 17, 2020 Zoom_chat_analytics.py can:
 Examples of the histogram, network graph, and basic pdf report are in the examples folder **TODO: create examples folder** 
 
 ## How to use this Repo  
-**TODO**
+**TODO add create reqs file and add link**  
+The command line application runs in the terminal using Google fire. In order to use it you will need to install the required dependencies.
+```javascript
+pip3 install -r requirements.txt
+```
 
-## Further reading
+If you only want to make the csv:  
+- **convert_to_csv**(filepath, csv_name) - Creates and exports three column csv: time, author, comment  
+
+Analysis:  
+- **start_to_finish**(filepath, csv_name, pdf_name) - Runs all the analytical functions and exports pdf, dataframe csv, and graphs as .png files      
+- **one_analytic**(filepath, csv_name, function_name) - Runs one analytical function  
+    * **find_urls** - Extract urls from comments  
+    * **comments_by_author** - Count the number of comments made by each author  
+    * **comments_over_time** - Returns histogram of comments over meeting time  
+    * **comment_network** - Create a network graph of who responds to comments  
+
+Variables:  
+- **filepath**: path to .txt file   
+- **csv_name**: name for exported csv (include .csv)  
+- **pdf_name**: name for exported pdf (include .pdf)  
+- **function_name**: which of the individual functions you'd like to run    
+
+In the terminal:  
+- Change directory to where Zoom_chat_analytics.py is stored  
+- The three parts of the application call are $ {./Zoom_chat_analytics.py} {function name} {function variables}    
+
+For example:  
+```javascript
+./Zoom_chat_analytics.py start_to_finish /home/folder/folder/Zoom.txt example.csv example.pdf
+```
+
+## Further reading  
 My goal is to create a tool that allows someone to glean more insights from their meetings. More about the goals of the program and how it works can be found in this Medium post: **TODO - INSERT POST**
 
 
@@ -29,11 +59,11 @@ My goal is to create a tool that allows someone to glean more insights from thei
 If you use this repo please consider citing it. 
 ```javascript
 @misc{Zoom_chat_analysis,
-  title={A terminal application for analytics of Zoom chat transcripts},
-  author={Lindsey Viann Parkinson},
-  year={2020},
-  publisher={Github},
-  journal={GitHub repository},
-  howpublished={\url{https://github.com/LVParkinson/Zoom_chat_analytics}},
+  title="A terminal application for analytics of Zoom chat transcripts",
+  author="Lindsey Viann Parkinson",
+  year="2020",
+  publisher="Github",
+  journal="GitHub repository",
+  howpublished= "https://github.com/LVParkinson/Zoom_chat_analytics"
 }
 ```
