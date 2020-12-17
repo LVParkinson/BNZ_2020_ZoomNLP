@@ -158,7 +158,7 @@ def comment_network(df):
     print("\n~~~~check working directory for Zoom_network.png~~~~\n")
 
     
-def one_analytic(filepath, csv_name, function_name):
+def one_analytical(filepath, csv_name, function_name):
     """
     Call only one function of Zoom Chat Analytics
     
@@ -240,6 +240,6 @@ if __name__ == '__main__':
       'comments_by_author': comments_by_author,
       'comments_over_time': comments_over_time,
       'comment_network': comment_network,
-      'one_analytic': one_analytic,
+      'one_analytical': one_analytical,
       'start_to_finish': start_to_finish
   })
