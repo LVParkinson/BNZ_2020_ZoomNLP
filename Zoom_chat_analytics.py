@@ -226,7 +226,7 @@ def start_to_finish(filepath, csv_name, pdf_name):
         #footer
     pdf.set_font('Arial', size = 10)
     pdf.set_y(250)
-    pdf.multi_cell(180, 25, txt = "Document created with https://github.com/LVParkinson/BNZ_2020_ZoomNLP ", align = 'C')
+    pdf.multi_cell(180, 25, txt = "Document created with https://github.com/LVParkinson/Zoom_chat_analytics ", align = 'C')
     
     pdf.output(pdf_name)
 
