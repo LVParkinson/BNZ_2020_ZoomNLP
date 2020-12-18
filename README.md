@@ -1,4 +1,9 @@
 # Zoom chat analytics
+
+## Author  
+[Lindsey Viann Parkinson](https://linkedin.com/in/lindsey-viann)  
+  
+## Purpose
 Recorded Zoom meetings include a transcript of the meeting chat box in the form of a .txt file. The Zoom_chat_analytics repository is the beginning of a tool to harness more information from those meetings. All the analytical functions can be run from the command line.
 
 As of December 17, 2020 Zoom_chat_analytics.py can:  
@@ -16,11 +21,10 @@ As of December 17, 2020 Zoom_chat_analytics.py can:
 
 
 ## Example output  
-Examples of the histogram, network graph, and basic pdf report are in the examples folder **TODO: create examples folder** 
+Examples of the histogram, network graph, and basic pdf report are in the examples folder  
 
-## How to use this Repo  
-**TODO add create reqs file and add link**  
-The command line application runs in the terminal using Google fire. In order to use it you will need to install the required dependencies.
+## How to use this Repo   
+The command line application runs in the terminal using Google fire. In order to use it you will need to install the required dependencies listed in the [requirements file](requirements.txt).
 ```javascript
 pip3 install -r requirements.txt
 ```
