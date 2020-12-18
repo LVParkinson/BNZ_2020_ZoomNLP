@@ -57,7 +57,7 @@ For example:
 ```
 
 ## Further reading  
-My goal is to create a tool that allows someone to glean more insights from their meetings. More about the goals of the program and how it works can be found in this Medium post: **TODO - INSERT POST**  
+My goal is to create a tool that allows someone to glean more insights from their meetings. More about my goals for the application can be found in [this Medium post](https://lindseyviann.medium.com/a-command-line-application-to-analyze-zoom-meeting-text-f9d8835b125a) 
 If you are interested in contributing check out the **What's next** section below for a list of big and little projects related to the application. Or go crazy on your own idea! 
 
 ## What's next  
