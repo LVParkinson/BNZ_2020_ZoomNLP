@@ -69,7 +69,7 @@ def convert_to_csv(filepath, csv_name):
     # remove private messages from dataframe
     df = df[~df['author'].str.contains("Privately")].reset_index(drop=True)
     
-    df.to_csv(csv_name, index = False) 
+    df.to_csv(csv_name, index = False, encoding = 'utf-8') 
     
     print("\n~~~~check source folder for Zoom chat csv~~~~\n")
     print(df.head())
@@ -199,6 +199,9 @@ def start_to_finish(filepath, csv_name, pdf_name):
     author_list = comments_by_author(df)
     pdf.set_font('Arial', size = 15)
     for author, count in author_list.items():
+        #ensure all characters are latin-1 compliant
+        #replaces all non latin-1 chars with ?
+        author = author.encode('latin-1', 'replace').decode('latin-1')
         pdf.cell(200, 5, txt = f"{author} - {count}", ln = 1)
 
     #Page 2 - URLs
